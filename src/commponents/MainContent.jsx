@@ -13,6 +13,7 @@ import moment from "moment";
 
 export default function MainContent() {
     // STATES
+    const [nextPrayerIndex, setNextPrayerIndex] = useState(2);
     const[timings, setTimings] = useState({
         Fajr: "04:02",
         Dhuhr: "11:58",
@@ -20,6 +21,7 @@ export default function MainContent() {
         Sunset: "18:33",
         Isha: "20:03",
     });
+    const [remainingTime, setRemainingTime] = useState("");
     const[selectedCity, setSelectedCity] = useState({
         displayName: "مكه المكرمة",
         apiName: "Makkah al Mukarramah"
@@ -41,20 +43,101 @@ export default function MainContent() {
             apiName: "Dammam"
         }
     ];
+    const prayersArray = [
+		{ key: "Fajr", displayName: "الفجر" },
+		{ key: "Dhuhr", displayName: "الظهر" },
+		{ key: "Asr", displayName: "العصر" },
+		{ key: "Sunset", displayName: "المغرب" },
+		{ key: "Isha", displayName: "العشاء" },
+	];
 
     const getTimings = async () => {
         const response = await axios.get(`https://api.aladhan.com/v1/timingsByCity?country=SA&city=${selectedCity.apiName}`);
         setTimings(response.data.data.timings);
     };
 
+    // EFFECT SIDE
     useEffect(() =>{
         getTimings();
-        const today = moment();
-        setToday(today.format('MMMM Do YYYY | h:mm a'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCity]);
+    useEffect(() =>{
+        let interval = setInterval(() => {
+            setupCountdownTimer();
+        }, 1000);
+        // END EFFECT SIDE
+        const today = moment();
+        setToday(today.format('MMMM Do YYYY | h:mm a'));
 
+        return () => {
+            clearInterval(interval);
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [timings]);
+    // END EFFECT SIDE
 
+    const setupCountdownTimer = () => {
+        const momentNow = moment();
+
+		let prayerIndex = 2;
+
+		if (
+			momentNow.isAfter(moment(timings["Fajr"], "hh:mm")) &&
+			momentNow.isBefore(moment(timings["Dhuhr"], "hh:mm"))
+		) {
+			prayerIndex = 1;
+		} else if (
+			momentNow.isAfter(moment(timings["Dhuhr"], "hh:mm")) &&
+			momentNow.isBefore(moment(timings["Asr"], "hh:mm"))
+		) {
+			prayerIndex = 2;
+		} else if (
+			momentNow.isAfter(moment(timings["Asr"], "hh:mm")) &&
+			momentNow.isBefore(moment(timings["Sunset"], "hh:mm"))
+		) {
+			prayerIndex = 3;
+		} else if (
+			momentNow.isAfter(moment(timings["Sunset"], "hh:mm")) &&
+			momentNow.isBefore(moment(timings["Isha"], "hh:mm"))
+		) {
+			prayerIndex = 4;
+		} else {
+			prayerIndex = 0;
+		}
+
+		setNextPrayerIndex(prayerIndex);
+
+		// now after knowing what the next prayer is, we can setup the countdown timer by getting the prayer's time
+		const nextPrayerObject = prayersArray[prayerIndex];
+		const nextPrayerTime = timings[nextPrayerObject.key];
+		const nextPrayerTimeMoment = moment(nextPrayerTime, "hh:mm");
+
+		let remainingTime = moment(nextPrayerTime, "hh:mm").diff(momentNow);
+
+		if (remainingTime < 0) {
+			const midnightDiff = moment("23:59:59", "hh:mm:ss").diff(momentNow);
+			const fajrToMidnightDiff = nextPrayerTimeMoment.diff(
+				moment("00:00:00", "hh:mm:ss")
+			);
+
+			const totalDiffernce = midnightDiff + fajrToMidnightDiff;
+
+			remainingTime = totalDiffernce;
+		}
+		console.log(remainingTime);
+
+		const durationRemainingTime = moment.duration(remainingTime);
+
+		setRemainingTime(
+			`${durationRemainingTime.seconds()} : ${durationRemainingTime.minutes()} : ${durationRemainingTime.hours()}`
+		);
+		console.log(
+			"duration issss ",
+			durationRemainingTime.hours(),
+			durationRemainingTime.minutes(),
+			durationRemainingTime.seconds()
+		);
+    };
     const handleChangeCity = (event) => {
         const objectCity = avilableCities.find((city) =>{
             return city.apiName === event.target.value;
@@ -75,8 +158,8 @@ export default function MainContent() {
 
                 <Grid xs={6}>
                     <div>
-                        <h2>متبقي حتي صلاة العصر</h2>
-                        <h1>00:10:20</h1>
+                        <h2>متبقي حتي صلاة {prayersArray[nextPrayerIndex].displayName}</h2>
+                        <h1>{remainingTime}</h1>
                     </div>
                 </Grid>
             </Grid>
