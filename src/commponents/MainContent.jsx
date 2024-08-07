@@ -169,11 +169,11 @@ export default function MainContent() {
 
             {/*== Prayers Cards ==*/}
             <Stack direction="row" justifyContent={"space-around"} style={{marginTop: "50px"}}>
-                <Prayer name="الفجر" time={timings.Fajr} image="../../public/fajr-prayer.png" />
-                <Prayer name="الظهر" time={timings.Dhuhr} image="../../public/dhhr-prayer-mosque.png" />
-                <Prayer name="العصر" time={timings.Asr} image="../../public/asr-prayer-mosque.png" />
-                <Prayer name="المغرب" time={timings.Sunset} image="../../public/sunset-prayer-mosque.png" />
-                <Prayer name="العشاء" time={timings.Isha} image="../../public/night-prayer-mosque.png" />
+                <Prayer name="الفجر" time={timings.Fajr} image="https://raw.githubusercontent.com/fageer/Prayer-Timings-React/master/public/fajr-prayer.png" />
+                <Prayer name="الظهر" time={timings.Dhuhr} image="https://raw.githubusercontent.com/fageer/Prayer-Timings-React/master/public/dhhr-prayer-mosque.png" />
+                <Prayer name="العصر" time={timings.Asr} image="https://raw.githubusercontent.com/fageer/Prayer-Timings-React/master/public/asr-prayer-mosque.png" />
+                <Prayer name="المغرب" time={timings.Sunset} image="https://raw.githubusercontent.com/fageer/Prayer-Timings-React/master/public/sunset-prayer-mosque.png" />
+                <Prayer name="العشاء" time={timings.Isha} image="https://raw.githubusercontent.com/fageer/Prayer-Timings-React/master/public/night-prayer-mosque.png" />
             </Stack>
             {/*== Prayers Cards ==*/}
 
